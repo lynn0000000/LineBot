@@ -223,4 +223,4 @@ def handle_timetable(event):
         print(f"出現異常：{e}")
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
