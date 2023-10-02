@@ -68,7 +68,7 @@ def handle_timetable(event):
             msg1 = TextSendMessage(text=f"星期{day} 第{No_class}堂課 : {class_info}")
             linebot_api.reply_message(event.reply_token,msg1)
         except Exception as e:
-            print(f"出現異常：{e}")
+            print(f"查課出現異常：{e}")
 
 
 # 功能: 顯示現在時間&下一堂課
@@ -78,15 +78,21 @@ def handle_timetable(event):
             # 顯示現在時間&下一堂課
 
             current_time = datetime.datetime.now()
+            print(current_time)
             week_of_day = current_time.weekday()+1 #不知道為甚麼星期漫一天
-            hour = str(current_time)[11]+str(current_time)[12]
+
+            #hour判斷 進到10點了沒 hour值不同
+            if str(current_time)[11] == "0":
+                hour = str(current_time)[12]
+            else:
+                hour = str(current_time)[11]+str(current_time)[12]
 
             class_dict = {
                 "8" : 1,
                 "9" : 2,
                 "10" : 3,
                 "11" : 4,
-                "12" : "甲奔",
+                # "12" : "甲奔",
                 "13" : 5,
                 "14" : 6,
                 "15" : 7,
@@ -109,32 +115,29 @@ def handle_timetable(event):
                 [nullClass,'微積分','微積分','微積分','體育','體育',nullClass,nullClass,nullClass]
                 
             ]
+            result_class=[]
             # 平日
             if week_of_day <= 5:
                 week_of_day = week_of_day;
-                
                 if hour in class_dict:
-                    msg_class = (f" 星期{week_of_day} 第{class_dict[hour]}節  {class_array[week_of_day-1][class_dict[hour]-1]}課")
-                    msg_class2 = (f"下一節是{hour}點10分{class_array[week_of_day-1][class_dict[hour]]}課")
-                if int(hour) < 8:
-                    msg_class = ("還沒上課，不要猴急")
+                    result_class.append(TextSendMessage(text=f" 星期{week_of_day} 第{class_dict[hour]}節  {class_array[week_of_day-1][class_dict[hour]-1]}課"))
+                    result_class.append(TextSendMessage(text=f"下一節是{hour}點10分{class_array[week_of_day-1][class_dict[hour]]}課"))
+                elif int(hour) < 8:
+                    result_class.append(TextSendMessage(text="還沒上課，不要猴急"))
                 elif int(hour) == 12:
-                    msg_class = ("甲奔")
+                    result_class.append(TextSendMessage(text="甲奔"))
                 elif int(hour) >= 18:
-                    msg_class = ("下課勾home")
+                    result_class.append(TextSendMessage(text="下課勾home"))
             # 假日
             else:
-                msg_class = "今天放假!!"
-            
-            msg2 = TextSendMessage(text=msg_class)
-            linebot_api.reply_message(event.reply_token,msg2)
-            msg3 = TextSendMessage(text=msg_class2)
-            linebot_api.reply_message(event.reply_token,msg3)
+                result_class.append(TextSendMessage(text="今天放假!!"))
+
+            linebot_api.reply_message(event.reply_token,result_class)
 
         except Exception as e:
             # 捕獲所有異常並打印相關訊息
-            print(f"出現異常：{e}")
-
+            print(f"等下什麼課出現異常：{e}")
+            print(hour)
 # 功能: 甲奔        
     if mtext == '[午餐吃什麼]':
         try:    
@@ -159,27 +162,65 @@ def handle_timetable(event):
         except Exception as e:
             print(f"出現異常：{e}")
 
-    if mtext == "breakfast" or "lunch" or "dinner":
+    if mtext in ["breakfast","lunch","dinner"]:
         try:
             import random
-            #breakfast
+            result_rest = [] #要輸出的總資料
+            #breakfast *之後可以抓資料庫or爬蟲?
             breakfast_ary = ['阿如','早安有喜','歐姆薯薯','橙家'] 
             #lunch or dinner
             restaurant_ary = [
                 '義大利麵',"丸龜","那個那個飯","吃你想吃的","泡麵","滷味","麻辣燙","美濃","莫尼","不要甲水餃"
             ]
-            if mtext == 'breakfast':
+            if mtext in 'breakfast':
                 result = random.choice(breakfast_ary)
-                linebot_api.reply_message(event.reply_token,TextSendMessage(text=result))
+                result_rest.append(TextSendMessage(text=result))
 
-            if mtext == 'lunch' or 'dinner':
+            if mtext in ['lunch','dinner']:
                 result = random.choice(restaurant_ary)
-                linebot_api.reply_message(event.reply_token,TextSendMessage(text=result))
+                result_rest.append(TextSendMessage(text=result))
+
+            stk_rpy = StickerSendMessage(
+                type="sticker",
+                package_id='8525',
+                sticker_id='16581294'
+            )
+            result_rest.append(stk_rpy)
+            linebot_api.reply_message(event.reply_token,result_rest)
             
         except Exception as e:
             # 捕獲所有異常並打印相關訊息
-            print(f"出現異常：{e}")
-
+            print(f"午餐出現異常：{e}")
+# 常用連結    
+    try:
+        mtext = event.message.text
+        if mtext == '[常用連結]':
+            # print("模板消息處理程序已觸發")
+            result_link = TemplateSendMessage(
+                alt_text='[常用連結]',
+                template = ButtonsTemplate(
+                    thumbnail_image_url="https://cdn-icons-png.flaticon.com/512/7471/7471685.png",
+                    title="常用連結",
+                    text="請選擇:",
+                    actions=[
+                        URITemplateAction(
+                            label="eportal",
+                            uri="https://sso.nutc.edu.tw/eportal/"
+                        ),
+                        URITemplateAction(
+                            label="zuvio",
+                            uri="https://irs.zuvio.com.tw/"
+                        ),
+                        URITemplateAction(
+                            label="tronclass",
+                            uri="https://tc.nutc.edu.tw/cas/login?service=https%3A//tc.nutc.edu.tw/login%3Fnext%3D/user/index&locale=zh_TW&ts=1676874443.898891"
+                        ),
+                    ]
+                )
+            )
+            linebot_api.reply_message(event.reply_token, result_link)
+    except Exception as e:
+        print(f"出現異常：{e}")
 
 if __name__ == "__main__":
     app.run()
