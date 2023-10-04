@@ -8,6 +8,27 @@ from linebot.exceptions import (
 )
 from linebot.models import *
 
+import datetime
+
+
+#======讓heroku不會睡著======
+# import threading 
+# import requests
+# import time
+# def wake_up_heroku():
+#     while 1==1:
+#         url = 'https://linebot-server-dhyh.onrender.com'
+#         res = requests.get(url)
+#         if res.status_code==200:
+#             print('喚醒heroku成功')
+#         else:
+#             print('喚醒失敗')
+#         time.sleep(28*60)
+
+# threading.Thread(target=wake_up_heroku).start()
+#======讓heroku不會睡著======
+
+
 app = Flask(__name__)
 
 linebot_api = LineBotApi("kmhdWuI33HGufZ4CenfTSXHUwWcKX9qIqKWju/spNTzClCNGaZ8ormJxrfB55n58h+ZdY7pr2EBPBWvsEZpTSaZMogIm5i5bX3982BZLI3vXzhdE1T3LNSGOpFO46ruyVUgHA/nD6VHxBb08EXFk7QdB04t89/1O/w1cDnyilFU=")
@@ -27,9 +48,18 @@ def callback():
         abort(400)
     return 'OK'
 
+def home():
+    # 在每个请求中获取当前时间戳并更新current_time
+    # hour = (current_time.hour)
+    # week_of_day = current_time.weekday()+1 #不知道為甚麼星期漫一天
+    global current_time
+    current_time = datetime.datetime.now()
 
+# current_time = datetime.datetime.now()
 # 課表
 @ handler.add(MessageEvent, message=TextMessage)
+
+
 def handle_timetable(event):
 
     mtext = event.message.text
@@ -74,30 +104,24 @@ def handle_timetable(event):
 # 功能: 顯示現在時間&下一堂課
     if mtext == '[等下什麼課]':
         try:
-            import datetime
+            # import datetime
             # 顯示現在時間&下一堂課
 
             current_time = datetime.datetime.now()
-            print(current_time)
+            hour = (current_time.hour)
             week_of_day = current_time.weekday()+1 #不知道為甚麼星期漫一天
 
-            #hour判斷 進到10點了沒 hour值不同
-            if str(current_time)[11] == "0":
-                hour = str(current_time)[12]
-            else:
-                hour = str(current_time)[11]+str(current_time)[12]
-
             class_dict = {
-                "8" : 1,
-                "9" : 2,
-                "10" : 3,
-                "11" : 4,
+                8 : 1,
+                9 : 2,
+                10 : 3,
+                11 : 4,
                 # "12" : "甲奔",
-                "13" : 5,
-                "14" : 6,
-                "15" : 7,
-                "16" : 8,
-                "17" : 9
+                13 : 5,
+                14 : 6,
+                15 : 7,
+                16 : 8,
+                17 : 9,
             }
 
             nullClass = "沒"
@@ -106,7 +130,7 @@ def handle_timetable(event):
                 #w1
                 [nullClass,nullClass,'生涯規劃','生涯規劃','英文','英文','英文',nullClass,nullClass],
                 #w2
-                [nullClass,"電子電路",'電子電路','進階程式設計','進階程式設計','進階程式設計',nullClass,nullClass],
+                [nullClass,"電子電路",'電子電路','電子電路','進階程式設計','進階程式設計','進階程式設計',nullClass,nullClass],
                 #w3
                 [nullClass,'國文','國文','國文','資訊不專業證照輔導','資訊不專業證照輔導','資訊不專業證照輔導',nullClass,nullClass],
                 #w4
@@ -117,16 +141,26 @@ def handle_timetable(event):
             ]
             result_class=[]
             # 平日
+            
+            # print(hour)
+            # print(type(hour))
+            # result_rest.append(TextSendMessage(text=hour))
+
+# 補一個下一門課是什麼!!!!!!
             if week_of_day <= 5:
                 week_of_day = week_of_day;
                 if hour in class_dict:
-                    result_class.append(TextSendMessage(text=f" 星期{week_of_day} 第{class_dict[hour]}節  {class_array[week_of_day-1][class_dict[hour]-1]}課"))
-                    result_class.append(TextSendMessage(text=f"下一節是{hour}點10分{class_array[week_of_day-1][class_dict[hour]]}課"))
-                elif int(hour) < 8:
+                    result_class.append(TextSendMessage(text=f"now : 第{class_dict[hour]}節  {class_array[week_of_day-1][class_dict[hour]-1]}課"))
+                    if class_array[week_of_day-1][class_dict[hour]-1] != "沒" and class_dict[hour] !=9:
+                        result_class.append(TextSendMessage(text=f"next : {hour+1}點10分{class_array[week_of_day-1][class_dict[hour]]}課"))
+                    else : 
+                        result_class.append(TextSendMessage(text="等下回家局"))
+
+                elif hour < 8:
                     result_class.append(TextSendMessage(text="還沒上課，不要猴急"))
-                elif int(hour) == 12:
+                elif hour == 12:
                     result_class.append(TextSendMessage(text="甲奔"))
-                elif int(hour) >= 18:
+                elif hour >= 18:
                     result_class.append(TextSendMessage(text="下課勾home"))
             # 假日
             else:
@@ -137,7 +171,7 @@ def handle_timetable(event):
         except Exception as e:
             # 捕獲所有異常並打印相關訊息
             print(f"等下什麼課出現異常：{e}")
-            print(hour)
+            # print(hour)
 # 功能: 甲奔        
     if mtext == '[午餐吃什麼]':
         try:    
@@ -170,7 +204,7 @@ def handle_timetable(event):
             breakfast_ary = ['阿如','早安有喜','歐姆薯薯','橙家'] 
             #lunch or dinner
             restaurant_ary = [
-                '義大利麵',"丸龜","那個那個飯","吃你想吃的","泡麵","滷味","麻辣燙","美濃","莫尼","不要甲水餃"
+                "義大利麵","丸龜","那個那個飯","吃你想吃的","泡麵","滷味","麻辣燙","美濃","莫尼","不要甲水餃","麥當勞"
             ]
             if mtext in 'breakfast':
                 result = random.choice(breakfast_ary)
@@ -222,5 +256,7 @@ def handle_timetable(event):
     except Exception as e:
         print(f"出現異常：{e}")
 
+# if __name__ == "__main__":
+#     app.run()
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
