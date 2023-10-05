@@ -10,25 +10,6 @@ from linebot.models import *
 
 import datetime
 
-
-#======讓heroku不會睡著======
-# import threading 
-# import requests
-# import time
-# def wake_up_heroku():
-#     while 1==1:
-#         url = 'https://linebot-server-dhyh.onrender.com'
-#         res = requests.get(url)
-#         if res.status_code==200:
-#             print('喚醒heroku成功')
-#         else:
-#             print('喚醒失敗')
-#         time.sleep(28*60)
-
-# threading.Thread(target=wake_up_heroku).start()
-#======讓heroku不會睡著======
-
-
 app = Flask(__name__)
 
 linebot_api = LineBotApi("kmhdWuI33HGufZ4CenfTSXHUwWcKX9qIqKWju/spNTzClCNGaZ8ormJxrfB55n58h+ZdY7pr2EBPBWvsEZpTSaZMogIm5i5bX3982BZLI3vXzhdE1T3LNSGOpFO46ruyVUgHA/nD6VHxBb08EXFk7QdB04t89/1O/w1cDnyilFU=")
@@ -48,21 +29,21 @@ def callback():
         abort(400)
     return 'OK'
 
-def home():
-    # 在每个请求中获取当前时间戳并更新current_time
-    # hour = (current_time.hour)
-    # week_of_day = current_time.weekday()+1 #不知道為甚麼星期漫一天
-    global current_time
-    current_time = datetime.datetime.now()
 
 # current_time = datetime.datetime.now()
 # 課表
 @ handler.add(MessageEvent, message=TextMessage)
 
+# def home(event):
+#     # 在每个请求中获取当前时间戳并更新current_time
 
 def handle_timetable(event):
 
     mtext = event.message.text
+    global current_time,hour,week_of_day
+    current_time = datetime.datetime.now()
+    hour = (current_time.hour)
+    week_of_day = current_time.weekday()+1 #不知道為甚麼星期漫一天
 
 # 功能: 查課
     if mtext == '[查課]':
@@ -104,12 +85,17 @@ def handle_timetable(event):
 # 功能: 顯示現在時間&下一堂課
     if mtext == '[等下什麼課]':
         try:
+            print("haha")
+            if (hour != ""):
+                print(hour)
+            else:
+                print("hour為空")
             # import datetime
             # 顯示現在時間&下一堂課
 
-            current_time = datetime.datetime.now()
-            hour = (current_time.hour)
-            week_of_day = current_time.weekday()+1 #不知道為甚麼星期漫一天
+            # current_time = datetime.datetime.now()
+            # hour = (current_time.hour)
+            # week_of_day = current_time.weekday()+1 #不知道為甚麼星期漫一天
 
             class_dict = {
                 8 : 1,
