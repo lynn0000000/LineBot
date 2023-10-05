@@ -10,7 +10,13 @@ from linebot.models import *
 
 import datetime
 
+from flask import Flask
+from tzlocal import get_localzone
+
+
+
 app = Flask(__name__)
+app.config['TIMEZONE'] = get_localzone()
 
 linebot_api = LineBotApi("kmhdWuI33HGufZ4CenfTSXHUwWcKX9qIqKWju/spNTzClCNGaZ8ormJxrfB55n58h+ZdY7pr2EBPBWvsEZpTSaZMogIm5i5bX3982BZLI3vXzhdE1T3LNSGOpFO46ruyVUgHA/nD6VHxBb08EXFk7QdB04t89/1O/w1cDnyilFU=")
 handler = WebhookHandler("6d6da6c7f2d6c2d4a77b7ed752c41812")
