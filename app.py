@@ -75,7 +75,7 @@ def handle_timetable(event):
                 #w3
                 [nullClass,'國文','國文','國文','資訊不專業證照輔導','資訊不專業證照輔導','資訊不專業證照輔導',nullClass,nullClass],
                 #w4
-                [nullClass,'計算機網路','計算機網路','計算機網路','網路應用程式設計','網路應用程式設計','班會','班會','網路應用程式設計'],
+                [nullClass,'計算機網路','計算機網路','計算機POPO','網路應用程式設計','網路應用程式設計','班會','班會','網路應用程式設計'],
                 #w5
                 [nullClass,'微積分','微積分','微積分','體育','體育',nullClass,nullClass,nullClass]
                 
