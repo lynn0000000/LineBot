@@ -91,11 +91,11 @@ def handle_timetable(event):
 # 功能: 顯示現在時間&下一堂課
     if mtext == '[等下什麼課]':
         try:
-            print("haha")
-            if (hour != ""):
-                print(hour)
-            else:
-                print("hour為空")
+            # print("haha")
+            # if (hour != ""):
+            #     print(hour)
+            # else:
+            #     print("hour為空")
             # import datetime
             # 顯示現在時間&下一堂課
 
@@ -151,7 +151,7 @@ def handle_timetable(event):
                 elif hour < 8:
                     result_class.append(TextSendMessage(text="還沒上課，不要猴急"))
                 elif hour == 12:
-                    result_class.append(TextSendMessage(text="甲奔"))
+                    result_class.append(TextSendMessage(text="去甲奔"))
                 elif hour >= 18:
                     result_class.append(TextSendMessage(text="下課勾home"))
             # 假日
